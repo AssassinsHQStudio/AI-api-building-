@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 from typing import List, Optional
 import openai
@@ -6,6 +6,8 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 import uuid
+import base64
+from io import BytesIO
 
 # Load environment variables
 load_dotenv()
@@ -37,7 +39,8 @@ async def root():
 
 class MessageRequest(BaseModel):
     content: str
-    model: str = "gpt-3.5-turbo"  # Default model
+    model: str = "gpt-4o-2024-11-20"  # Default model for vision tasks
+    image: Optional[str] = None  # Base64 encoded image
 
 class Job(BaseModel):
     id: str
@@ -48,19 +51,50 @@ class Job(BaseModel):
     status: str
 
 @app.post("/messages", response_model=Job)
-async def create_message(message: MessageRequest):
+async def create_message(
+    content: str = Form(...),
+    model: str = Form("gpt-3.5-turbo"),
+    image: UploadFile = File(None)
+):
     try:
+        messages = []
+        
+        if image:
+            # Read and encode the image
+            image_content = await image.read()
+            base64_image = base64.b64encode(image_content).decode('utf-8')
+            model = "gpt-4o-2024-11-20"
+            # Create messages with both text and image
+            messages = [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": content},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{base64_image}"
+                            }
+                        }
+                    ]
+                }
+            ]
+        else:
+            # Create message with text only
+            messages = [{"role": "user", "content": content}]
+        
         # Create a chat completion
         response = openai.chat.completions.create(
-            model=message.model,
-            messages=[{"role": "user", "content": message.content}]
+            model=model,
+            messages=messages,
+            max_tokens=1000
         )
         
         # Create a new job with UUID
         job = Job(
             id=str("llmjobid:" + str(uuid.uuid4())[:5].lower()),
-            content=message.content,
-            model=message.model,
+            content=content,
+            model=model,
             response=response.choices[0].message.content,
             created_at=datetime.now(),
             status="completed"
