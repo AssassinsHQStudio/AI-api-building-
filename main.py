@@ -5,6 +5,7 @@ import openai
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+import uuid
 
 # Load environment variables
 load_dotenv()
@@ -28,7 +29,8 @@ async def root():
         "endpoints": {
             "create_message": "POST /messages",
             "get_all_jobs": "GET /jobs",
-            "get_job_by_id": "GET /jobs/{job_id}"
+            "get_job_by_id": "GET /jobs/{job_id}",
+            "get_models": "GET /models"
         },
         "documentation": "/docs"
     }
@@ -54,9 +56,9 @@ async def create_message(message: MessageRequest):
             messages=[{"role": "user", "content": message.content}]
         )
         
-        # Create a new job
+        # Create a new job with UUID
         job = Job(
-            id=str(len(jobs) + 1),
+            id=str("llmjobid:" + str(uuid.uuid4())[:5].lower()),
             content=message.content,
             model=message.model,
             response=response.choices[0].message.content,
@@ -81,6 +83,26 @@ async def get_job(job_id: str):
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     return job
+
+@app.get("/models")
+async def get_models():
+    try:
+        # Fetch available models from OpenAI
+        models = openai.models.list()
+        
+        # Format the response to include relevant information
+        formatted_models = []
+        for model in models:
+            formatted_models.append({
+                "id": model.id,
+                "object": model.object,
+                "created": model.created,
+                "owned_by": model.owned_by,
+            })
+        
+        return formatted_models
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
