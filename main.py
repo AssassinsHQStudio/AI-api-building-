@@ -124,14 +124,98 @@ async def get_models():
         # Fetch available models from OpenAI
         models = openai.models.list()
         
+        # Define model capabilities
+        model_capabilities = {
+            "gpt-4-vision-preview": {
+                "text_input": True,
+                "text_output": True,
+                "image_input": True,
+                "image_output": False,
+                "reasoning": 5,
+                "speed": 3,
+                "pricing": {
+                    "input": 0.01,  # $0.01 per 1K tokens
+                    "output": 0.03,  # $0.03 per 1K tokens
+                    "image": 0.02  # $0.02 per image
+                }
+            },
+            "gpt-4": {
+                "text_input": True,
+                "text_output": True,
+                "image_input": False,
+                "image_output": False,
+                "reasoning": 5,
+                "speed": 3,
+                "pricing": {
+                    "input": 0.01,  # $0.01 per 1K tokens
+                    "output": 0.03  # $0.03 per 1K tokens
+                }
+            },
+            "gpt-3.5-turbo": {
+                "text_input": True,
+                "text_output": True,
+                "image_input": False,
+                "image_output": False,
+                "reasoning": 3,
+                "speed": 5,
+                "pricing": {
+                    "input": 0.0005,  # $0.0005 per 1K tokens
+                    "output": 0.0015  # $0.0015 per 1K tokens
+                }
+            },
+            "dall-e-3": {
+                "text_input": True,
+                "text_output": False,
+                "image_input": False,
+                "image_output": True,
+                "reasoning": 4,
+                "speed": 2,
+                "pricing": {
+                    "input": 0.04,  # $0.04 per prompt
+                    "output": 0.08  # $0.08 per image
+                }
+            },
+            "dall-e-2": {
+                "text_input": True,
+                "text_output": False,
+                "image_input": False,
+                "image_output": True,
+                "reasoning": 3,
+                "speed": 4,
+                "pricing": {
+                    "input": 0.02,  # $0.02 per prompt
+                    "output": 0.02  # $0.02 per image
+                }
+            }
+        }
+        
         # Format the response to include relevant information
         formatted_models = []
         for model in models:
+            capabilities = model_capabilities.get(model.id, {
+                "text_input": True,  # Default to text input
+                "text_output": True,  # Default to text output
+                "image_input": False,  # Default to no image input
+                "image_output": False,  # Default to no image output
+                "reasoning": "Not found",  # Default reasoning score
+                "speed": "Not found",  # Default speed score
+                "pricing": {
+                    "input": "Not found",  # Default pricing
+                    "output": "Not found"
+                }
+            })
+            
             formatted_models.append({
                 "id": model.id,
                 "object": model.object,
                 "created": model.created,
                 "owned_by": model.owned_by,
+                "capabilities": capabilities,
+                "metrics": {
+                    "reasoning": capabilities["reasoning"],
+                    "speed": capabilities["speed"]
+                },
+                "pricing": capabilities["pricing"]
             })
         
         return formatted_models
