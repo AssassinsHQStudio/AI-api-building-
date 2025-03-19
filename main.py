@@ -121,7 +121,7 @@ async def get_job(job_id: str):
 @app.get("/models")
 async def get_models():
     try:
-        # Fetch available models from OpenAI
+        # Fetch available models from OpenAI using the newer method
         models = openai.models.list()
         
         # Define model capabilities
@@ -192,30 +192,38 @@ async def get_models():
         # Format the response to include relevant information
         formatted_models = []
         for model in models:
-            capabilities = model_capabilities.get(model.id, {
-                "text_input": True,  # Default to text input
-                "text_output": True,  # Default to text output
-                "image_input": False,  # Default to no image input
-                "image_output": False,  # Default to no image output
-                "reasoning": "Not found",  # Default reasoning score
-                "speed": "Not found",  # Default speed score
-                "pricing": {
-                    "input": "Not found",  # Default pricing
-                    "output": "Not found"
+            # Find matching capabilities by checking if model name starts with any known base model name
+            matching_capabilities = None
+            for base_model, capabilities in model_capabilities.items():
+                if model.id.startswith(base_model):
+                    matching_capabilities = capabilities
+                    break
+            
+            if not matching_capabilities:
+                matching_capabilities = {
+                    "text_input": "Not found",
+                    "text_output": "Not found",
+                    "image_input": "Not found",
+                    "image_output": "Not found",
+                    "reasoning": "Not found",
+                    "speed": "Not found",
+                    "pricing": {
+                        "input": "Not found",
+                        "output": "Not found"
+                    }
                 }
-            })
             
             formatted_models.append({
                 "id": model.id,
                 "object": model.object,
                 "created": model.created,
                 "owned_by": model.owned_by,
-                "capabilities": capabilities,
+                "capabilities": matching_capabilities,
                 "metrics": {
-                    "reasoning": capabilities["reasoning"],
-                    "speed": capabilities["speed"]
+                    "reasoning": matching_capabilities["reasoning"],
+                    "speed": matching_capabilities["speed"]
                 },
-                "pricing": capabilities["pricing"]
+                "pricing": matching_capabilities["pricing"]
             })
         
         return formatted_models
