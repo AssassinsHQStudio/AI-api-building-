@@ -41,9 +41,9 @@ Request body:
     "model": "gpt-3.5-turbo"  // Optional, defaults to gpt-3.5-turbo
 }
 ```
-
 ### GET /jobs
 Retrieve all previous jobs.
 
 ### GET /jobs/{job_id}
 Retrieve a specific job by ID.
+
