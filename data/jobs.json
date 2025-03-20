@@ -30,5 +30,29 @@
     "response": "I'm sorry, I cannot see what you are referring to as I am an AI-powered chatbot and do not have the ability to see physical objects. Can you please provide more context or describe it in more detail?",
     "created_at": "2025-03-20T22:31:02.058876",
     "status": "completed"
+  },
+  {
+    "id": "llmjobid:eb119",
+    "content": "string",
+    "model": "gpt-4o-2024-11-20",
+    "response": "This is an image of a bedroom with basic furnishings. The room features a white wall with peeling or damaged paint, a bed with white bedding, a radiator, a small desk with a chair, black storage drawers, and additional furniture like a chest of drawers and a mirror on a dresser. The decor appears minimalist, with some personal belongings and household items scattered around, giving the room a lived-in look.",
+    "created_at": "2025-03-20T22:45:05.363044",
+    "status": "completed"
+  },
+  {
+    "id": "llmjobid:4ceaf",
+    "content": "string",
+    "model": "gpt-4o-2024-11-20",
+    "response": "The images depict the interiors of a lived-in home:\n\n1. **Bedroom**: Contains a bed with white bedding, a desk, chair, drawers, and other furniture. The walls and ceiling show signs of wear, such as cracks and peeling paint.\n2. **Bedroom from another angle**: Focuses again on the room's furniture and decor, with windows on one side and clothing hanging on a rack.\n3. **Kitchen**: Shows blue cabinets, a countertop, white tiled wall backsplash, and household items. The space is functional but has noticeable wear, like peeling paint near the ceiling and walls showing age.\n\n",
+    "created_at": "2025-03-20T22:45:22.805067",
+    "status": "completed"
+  },
+  {
+    "id": "llmjobid:7817f",
+    "content": "string",
+    "model": "gpt-3.5-turbo",
+    "response": "A string is a sequence of characters, such as letters, numbers, or symbols, that are grouped together and treated as a single entity in computer programming languages. Strings are commonly used to represent text data in programs and can be manipulated, modified, and processed by the program to achieve different tasks.",
+    "created_at": "2025-03-20T22:45:46.475392",
+    "status": "completed"
   }
 ]

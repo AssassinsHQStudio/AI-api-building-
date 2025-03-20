@@ -96,16 +96,16 @@ class MessageRequest(BaseModel):
 
 @app.post("/job", response_model=Job, tags=["Jobs"])
 async def create_job(
-    content: str = Form(...),
+    prompt: str = Form(...),
     model: str = Form("gpt-3.5-turbo"),
-    images: List[UploadFile] = File(None)
+    images: Optional[List[UploadFile]] = None
 ):
     try:
         messages = []
         
-        if images and len(images) > 0:
+        if images:
             # Process multiple images
-            message_content = [{"type": "text", "text": content}]
+            message_content = [{"type": "text", "text": prompt}]
             
             # Read and encode each image
             for image in images:
@@ -118,11 +118,11 @@ async def create_job(
                     }
                 })
             
-            model = "gpt-4-vision-preview"  # Use vision model when images are present
+            model = "gpt-4o-2024-11-20"  # Use vision model when images are present
             messages = [{"role": "user", "content": message_content}]
         else:
             # Create message with text only
-            messages = [{"role": "user", "content": content}]
+            messages = [{"role": "user", "content": prompt}]
         
         # Create a chat completion
         response = openai.chat.completions.create(
@@ -134,7 +134,7 @@ async def create_job(
         # Create a new job with UUID
         job = Job(
             id=str("llmjobid:" + str(uuid.uuid4())[:5].lower()),
-            content=content,
+            content=prompt,
             model=model,
             response=response.choices[0].message.content,
             created_at=datetime.now(),
