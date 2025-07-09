@@ -54,5 +54,13 @@
     "response": "A string is a sequence of characters, such as letters, numbers, or symbols, that are grouped together and treated as a single entity in computer programming languages. Strings are commonly used to represent text data in programs and can be manipulated, modified, and processed by the program to achieve different tasks.",
     "created_at": "2025-03-20T22:45:46.475392",
     "status": "completed"
+  },
+  {
+    "id": "llmjobid:99644",
+    "content": "string",
+    "model": "gpt-3.5-turbo",
+    "response": "A string is a sequence of characters, either literal characters or variables, enclosed in quotation marks. In programming, strings are commonly used to store and manipulate text data. They can include letters, numbers, symbols, and spaces, allowing for the creation of sentences, paragraphs, and more complex data structures. Strings are a fundamental data type in most programming languages and are used in a wide variety of applications.",
+    "created_at": "2025-03-27T16:33:21.174532",
+    "status": "completed"
   }
 ]

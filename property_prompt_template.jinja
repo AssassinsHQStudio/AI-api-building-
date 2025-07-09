@@ -1,0 +1,43 @@
+{% macro generate_property_prompt(object_name, categories=None) %}
+Please analyze and break down the properties of {{ object_name }} in the following format:
+
+{% if categories is none %}
+{% set categories = [
+    {
+        "name": "Physical Properties",
+        "items": ["Dimensions", "Weight", "Materials", "Display specifications"]
+    },
+    {
+        "name": "Technical Specifications",
+        "items": ["Processor", "Memory", "Storage", "Battery"]
+    },
+    {
+        "name": "Software Features",
+        "items": ["Operating System", "Key Applications", "Security Features"]
+    },
+    {
+        "name": "Connectivity",
+        "items": ["Network Capabilities", "Ports", "Wireless Features"]
+    }
+] %}
+{% endif %}
+
+{% for category in categories %}
+{{ loop.index }}. {{ category.name }}:
+{% for item in category.items %}
+   - {{ item }}
+{% endfor %}
+
+{% endfor %}
+
+Please provide detailed information for each category and explain how these properties work together to create a cohesive {{ object_name }}.
+
+{% if additional_requirements %}
+Additional Requirements:
+{{ additional_requirements }}
+{% endif %}
+{% endmacro %}
+
+{# Example usage:
+{{ generate_property_prompt("Smartphone") }}
+#} 

@@ -148,6 +148,72 @@ async def create_job(
         return job
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/jobs", response_model=List[Job], tags=["Jobs"])
+async def list_jobs():
+    return jobs
+
+@app.get("/jobs/{job_id}", response_model=Job, tags=["Jobs"])
+async def get_job(job_id: str):
+    job = next((job for job in jobs if job.id == job_id), None)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return job
+
+@app.post("/task", response_model=Job, tags=["Tasks"])
+async def create_task(
+    tasktype: str = Form(...),
+    model: str = Form("gpt-3.5-turbo"),
+    images: Optional[List[UploadFile]] = None
+):
+    try:
+        messages = []
+        
+        if images:
+            # Process multiple images
+            message_content = [{"type": "text", "text": tasktype}]
+            
+            # Read and encode each image
+            for image in images:
+                image_content = await image.read()
+                base64_image = base64.b64encode(image_content).decode('utf-8')
+                message_content.append({
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{base64_image}"
+                    }
+                })
+            
+            model = "gpt-4o-2024-11-20"  # Use vision model when images are present
+            messages = [{"role": "user", "content": message_content}]
+        else:
+            # Create message with text only
+            messages = [{"role": "user", "content": tasktype}]
+        
+        # Create a chat completion
+        response = openai.chat.completions.create(
+            model=model,
+            messages=messages,
+            max_tokens=1000
+        )
+        
+        # Create a new job with UUID
+        job = Job(
+            id=str("llmjobid:" + str(uuid.uuid4())[:5].lower()),
+            content=tasktype,
+            model=model,
+            response=response.choices[0].message.content,
+            created_at=datetime.now(),
+            status="completed"
+        )
+        
+        # Store the job and save to file
+        jobs.append(job)
+        save_jobs(jobs)
+        
+        return job
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/jobs", response_model=List[Job], tags=["Jobs"])
 async def list_jobs():
